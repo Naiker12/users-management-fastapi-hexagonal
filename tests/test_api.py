@@ -71,7 +71,11 @@ def test_crud_routes_and_openapi():
     assert http.put(f"/api/users/{uid}", headers=headers, json={"name": "Ana"}).status_code == 200
     assert http.delete(f"/api/users/{uid}", headers=headers).status_code == 204
     assert http.get("/swagger-ui/index.html").status_code == 200
-    assert http.get("/v3/api-docs").status_code == 200
+    openapi = http.get("/v3/api-docs")
+    assert openapi.status_code == 200
+    specification = openapi.json()
+    assert "HTTPBearer" in specification["components"]["securitySchemes"]
+    assert specification["paths"]["/api/users"]["get"]["security"] == [{"HTTPBearer": []}]
     main.app.dependency_overrides.clear()
 
 
