@@ -25,6 +25,19 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from_address: str = ""
     smtp_from_name: str = "Gestion de Usuarios"
+    brevo_base_url: str = "https://api.brevo.com"
+    brevo_api_key: str = ""
+    brevo_from_address: str = ""
+    brevo_from_name: str = "Gestion de Usuarios"
+    brevo_connect_timeout: float = 2.0
+    brevo_read_timeout: float = 5.0
+    brevo_retry_max_attempts: int = 3
+    brevo_retry_initial_delay: float = 0.5
+    brevo_retry_multiplier: float = 2.0
+    brevo_circuit_failure_threshold: float = 50.0
+    brevo_circuit_window_size: int = 10
+    brevo_circuit_minimum_calls: int = 5
+    brevo_circuit_open_duration: float = 30.0
 
 
 @lru_cache

@@ -34,3 +34,29 @@ services:
         sync: false
       - key: EMAIL_PROVIDER
         value: console
+      - key: BREVO_BASE_URL
+        value: https://api.brevo.com
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_ADDRESS
+        sync: false
+      - key: BREVO_FROM_NAME
+        value: Gestion de Usuarios
+      - key: BREVO_CONNECT_TIMEOUT
+        value: 2
+      - key: BREVO_READ_TIMEOUT
+        value: 5
+      - key: BREVO_RETRY_MAX_ATTEMPTS
+        value: 3
+      - key: BREVO_RETRY_INITIAL_DELAY
+        value: 0.5
+      - key: BREVO_RETRY_MULTIPLIER
+        value: 2.0
+      - key: BREVO_CIRCUIT_FAILURE_THRESHOLD
+        value: 50
+      - key: BREVO_CIRCUIT_WINDOW_SIZE
+        value: 10
+      - key: BREVO_CIRCUIT_MINIMUM_CALLS
+        value: 5
+      - key: BREVO_CIRCUIT_OPEN_DURATION
+        value: 30

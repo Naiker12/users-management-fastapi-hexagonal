@@ -90,3 +90,7 @@ docker compose up --build
 Conecta el repositorio de GitHub en Render o crea un Blueprint usando `render.yaml`. Completa los valores `sync: false` del servicio con las variables de conexión de Supabase y secretos nuevos; no copies el `.env` local al panel. El despliegue automático sigue los cambios en `main`. Swagger permanece público y `GET /` requiere Bearer JWT, como en el contrato del taller.
 
 La demostración de cambio de proveedor de la Guía 4 está en [`docs/db-provider-switch.md`](docs/db-provider-switch.md).
+
+## Correo con Brevo (Guía 5)
+
+El adaptador Brevo usa REST sobre HTTPS. Para activarlo, verifica un remitente en Brevo, define `BREVO_API_KEY`, `BREVO_FROM_ADDRESS` y `BREVO_FROM_NAME` en el entorno, y cambia `EMAIL_PROVIDER=brevo`. El envío usa tres intentos con backoff, circuit breaker y una cola en segundo plano; los límites se configuran con las variables `BREVO_*` de `.env.example`. Nunca guardes la API key en Git. El modo predeterminado `console` sigue disponible para desarrollo local.

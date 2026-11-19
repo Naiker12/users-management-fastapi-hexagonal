@@ -104,3 +104,4 @@ def test_smtp_email_adapter_sends_message(monkeypatch):
     EmailSender(settings).send("to@example.com", "Subject", "Body")
     assert captured["tls"]
     assert captured["message"]["To"] == "to@example.com"
+    assert captured["message"].get_content_type() == "multipart/alternative"

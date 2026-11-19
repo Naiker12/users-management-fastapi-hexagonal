@@ -64,8 +64,11 @@ class FakeEmail:
     def __init__(self):
         self.messages = []
 
-    def send(self, *message):
-        self.messages.append(message)
+    def user_created(self, user, temporary_password):
+        self.messages.append((user.email, "created", temporary_password))
+
+    def user_updated(self, user):
+        self.messages.append((user.email, "updated", user.status.value))
 
 
 def make_service(user=None):

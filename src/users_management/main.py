@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Generator
+from contextlib import asynccontextmanager
 from uuid import UUID
 
 import jwt
@@ -11,7 +12,9 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session, sessionmaker
 
-from users_management.application import UserService
+from users_management.application import EmailNotificationService, UserService
+from users_management.async_email_sender import AsyncEmailSender
+from users_management.brevo_email_sender import BrevoEmailSender
 from users_management.config import get_settings
 from users_management.domain import (
     DomainError,
@@ -26,7 +29,22 @@ settings = get_settings()
 engine = make_engine(settings)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 security_service = Security(settings)
-email_sender = EmailSender(settings)
+def build_email_sender():
+    if settings.email_provider == "brevo":
+        return AsyncEmailSender(BrevoEmailSender(settings), max_workers=4, max_queue_size=100)
+    return EmailSender(settings)
+
+
+email_sender = EmailNotificationService(build_email_sender())
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    yield
+    sender = email_sender.sender
+    if isinstance(sender, AsyncEmailSender):
+        sender.shutdown()
+        sender.sender.close()
 
 
 class UserCreate(BaseModel):
@@ -69,7 +87,7 @@ def user_response(user) -> dict:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Users Management API", version="1.0.0", docs_url=None,
-                  redoc_url=None, openapi_url="/v3/api-docs")
+                  redoc_url=None, openapi_url="/v3/api-docs", lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
                        allow_headers=["Authorization", "Content-Type"])
 
