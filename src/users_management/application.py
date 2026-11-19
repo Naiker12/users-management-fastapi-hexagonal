@@ -33,9 +33,46 @@ class EmailSenderPort(Protocol):
     def send(self, to: str, subject: str, body: str) -> None: ...
 
 
+class EmailNotificationPort(Protocol):
+    def user_created(self, user: User, temporary_password: str) -> None: ...
+    def user_updated(self, user: User) -> None: ...
+
+
+class EmailNotificationService:
+    def __init__(self, sender: EmailSenderPort):
+        from pathlib import Path
+        self.sender = sender
+        self.template_directory = Path(__file__).with_name("templates")
+
+    def _render(self, template: str, values: dict[str, str]) -> str:
+        import html
+        content = (self.template_directory / template).read_text(encoding="utf-8")
+        for key, value in values.items():
+            content = content.replace("{{" + key + "}}", html.escape(value))
+        return content
+
+    def user_created(self, user: User, temporary_password: str) -> None:
+        body = self._render("user-created.html", {
+            "name": user.name,
+            "email": user.email,
+            "password": temporary_password,
+            "role": user.role.value,
+        })
+        self.sender.send(user.email, "Usuario creado", body)
+
+    def user_updated(self, user: User) -> None:
+        body = self._render("user-updated.html", {
+            "name": user.name,
+            "email": user.email,
+            "role": user.role.value,
+            "status": user.status.value,
+        })
+        self.sender.send(user.email, "Usuario actualizado", body)
+
+
 class UserService:
     def __init__(self, repository: UserRepositoryPort, security: PasswordSecurityPort,
-                 email: EmailSenderPort):
+                 email: EmailNotificationPort):
         self.repository, self.security, self.email = repository, security, email
 
     def create(self, data: dict) -> User:
@@ -53,7 +90,7 @@ class UserService:
             raise InvalidUserData("Rol inválido.") from exc
         user = self.repository.save(User(name=name, email=email,
                            password_hash=self.security.hash_password(password), role=role))
-        self.email.send(email, "Usuario creado", f"Hola {name}, tu cuenta está pendiente de activación. Contraseña temporal: {password}")
+        self.email.user_created(user, password)
         return user
 
     def get(self, user_id: UUID) -> User:
@@ -81,7 +118,7 @@ class UserService:
                        password_hash=self.security.hash_password(password) if password else current.password_hash,
                        role=role, status=status, created_at=current.created_at)
         result = self.repository.update(updated)
-        self.email.send(email, "Usuario actualizado", f"Hola {name}, tu cuenta fue actualizada. Estado: {status.value}.")
+        self.email.user_updated(result)
         return result
 
     def delete(self, user_id: UUID) -> None:

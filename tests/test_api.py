@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
@@ -72,3 +73,14 @@ def test_crud_routes_and_openapi():
     assert http.get("/swagger-ui/index.html").status_code == 200
     assert http.get("/v3/api-docs").status_code == 200
     main.app.dependency_overrides.clear()
+
+
+def test_app_lifespan_closes_async_sender(monkeypatch):
+    from users_management.async_email_sender import AsyncEmailSender
+
+    adapter = MagicMock()
+    async_sender = AsyncEmailSender(adapter)
+    monkeypatch.setattr(main.email_sender, "sender", async_sender)
+    with TestClient(main.create_app()):
+        pass
+    adapter.close.assert_called_once()
