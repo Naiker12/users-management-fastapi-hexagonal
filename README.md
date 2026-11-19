@@ -88,3 +88,5 @@ docker compose up --build
 ## Despliegue en Render
 
 Conecta el repositorio de GitHub en Render o crea un Blueprint usando `render.yaml`. Completa los valores `sync: false` del servicio con las variables de conexión de Supabase y secretos nuevos; no copies el `.env` local al panel. El despliegue automático sigue los cambios en `main`. Swagger permanece público y `GET /` requiere Bearer JWT, como en el contrato del taller.
+
+La demostración de cambio de proveedor de la Guía 4 está en [`docs/db-provider-switch.md`](docs/db-provider-switch.md).
