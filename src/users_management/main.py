@@ -109,6 +109,10 @@ def create_app() -> FastAPI:
     async def swagger_ui():
         return get_swagger_ui_html(openapi_url="/v3/api-docs", title="Users Management API")
 
+    @app.get("/", include_in_schema=False)
+    def root(_: dict = Depends(current_user)):
+        return {"message": "Users Management API"}
+
     @app.post("/api/auth/login")
     def login(body: LoginRequest, service: UserService = Depends(get_service)):
         token, expires = service.login(body.email, body.password)
