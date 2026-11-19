@@ -1,0 +1,16 @@
+[project]
+name = "users-management"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--cov=users_management --cov-report=term-missing --cov-fail-under=90"
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+ignore = ["B008"]

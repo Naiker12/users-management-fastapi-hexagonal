@@ -1,0 +1,98 @@
+{
+  "info": {
+    "_postman_id": "b74d899d-4d0a-4071-a632-a2738360ac69",
+    "name": "Taller de MicroServicios FastAPI Hexagonal",
+    "description": "Flujo de autenticación y CRUD de users-management. Selecciona el entorno Local o Remoto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Login responde 200', () => pm.response.to.have.status(200));",
+              "if (pm.response.code === 200) pm.environment.set('accessToken', pm.response.json().accessToken);"
+            ] }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Crear usuario pendiente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ana Prueba\",\n  \"email\": \"{{newUserEmail}}\",\n  \"password\": \"Clave1234!\",\n  \"role\": \"MEMBER\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/users"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "pm.test('Usuario creado en PENDING', () => { pm.response.to.have.status(201); pm.expect(pm.response.json().status).to.eql('PENDING'); });",
+              "if (pm.response.code === 201) pm.environment.set('userId', pm.response.json().id);"
+            ] }
+          }]
+        },
+        {
+          "name": "Listar usuarios",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/users" }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/users/{{userId}}" }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ana Actualizada\",\n  \"status\": \"ACTIVE\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/users/{{userId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Seguridad",
+      "item": [
+        {
+          "name": "Listar sin token (espera 401)",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": "{{baseUrl}}/api/users"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "adminEmail", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "newUserEmail", "value": "ana-prueba@example.com" },
+    { "key": "userId", "value": "" }
+  ]
+}
