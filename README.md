@@ -2,6 +2,43 @@
 
 Microservicio de gestión de usuarios construido con Python, FastAPI y arquitectura hexagonal. Implementa los endpoints de la Guía 1 y está preparado para PostgreSQL local o Supabase mediante variables de entorno.
 
+## Demostración pública
+
+[Abrir Swagger en Render](https://users-management-api-bar8.onrender.com/swagger-ui/index.html)
+
+Captura real de la documentación de la API desplegada:
+
+![Swagger de Users Management API desplegado en Render](docs/images/swagger-render.png)
+
+[Ver video de evidencias (MP4)](docs/video/demo-evidencias.mp4). Es una secuencia de capturas reales de Swagger, sin audio; no es una grabación continua.
+
+Pruebas realizadas contra Render el 19 de noviembre de 2026 (UTC), con un usuario exclusivo de demostración:
+
+| Prueba | Resultado observado |
+|---|---|
+| Login del administrador | Token recibido correctamente |
+| GET /api/users sin token | 401 |
+| POST /api/users | 201, PENDING |
+| PUT /api/users/{id} | 200, ACTIVE y nombre actualizado |
+| GET /api/users/{id} con token | 200, cambios persistidos |
+| DELETE /api/users/{id} | 204, registro de prueba eliminado con confirmación |
+
+Estas pruebas verifican las respuestas HTTP y la persistencia; no verifican la recepción de correos en Brevo.
+
+### Protección JWT
+
+![Consulta sin token devuelve 401](docs/images/security-401.png)
+
+### Creación y actualización
+
+![Creación devuelve 201 PENDING](docs/images/create-201.png)
+
+![Actualización devuelve 200 ACTIVE](docs/images/update-200.png)
+
+### Eliminación del usuario de prueba
+
+![Eliminación devuelve 204](docs/images/delete-204.png)
+
 ## Requisitos
 
 - Python 3.12 o superior (el proyecto también es compatible con Python 3.13).
@@ -41,6 +78,8 @@ DB_SCHEMA=crud_usuarios
 ```
 
 `DB_PASSWORD` contiene solamente la contraseña de base de datos, no la URI completa. Para conexión local sin TLS usa `DB_SSL_MODE=disable`.
+
+En Render, usa los valores de **Connect → Session pooler** del mismo proyecto Supabase. El usuario debe incluir el identificador del proyecto, por ejemplo `postgres.<project-ref>`. Si el pooler responde `ENOIDENTIFIER` (no se recibió `external_id` o `sni_hostname`), confirma que `DB_USERNAME` no sea solo `postgres` y que coincida exactamente con el usuario mostrado por Supabase. Guarda las variables para que Render redespliegue el servicio.
 
 ## Crear el administrador y arrancar
 

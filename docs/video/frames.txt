@@ -1,0 +1,11 @@
+file '../images/swagger-render.png'
+duration 4
+file '../images/security-401.png'
+duration 5
+file '../images/create-201.png'
+duration 5
+file '../images/update-200.png'
+duration 5
+file '../images/delete-204.png'
+duration 5
+file '../images/delete-204.png'
