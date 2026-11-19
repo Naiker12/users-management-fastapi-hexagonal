@@ -6,9 +6,10 @@ from contextlib import asynccontextmanager
 from uuid import UUID
 
 import jwt
-from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -104,12 +105,16 @@ def create_app() -> FastAPI:
         return __import__("fastapi").responses.JSONResponse(status_code=status,
             content={"status": status, "message": str(exc)})
 
-    def current_user(authorization: str | None = Header(default=None)) -> dict:
-        if not authorization or not authorization.startswith("Bearer "):
+    bearer_scheme = HTTPBearer(auto_error=False)
+
+    def current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    ) -> dict:
+        if credentials is None:
             raise HTTPException(401, detail="Autenticacion requerida o token invalido.",
                                 headers={"WWW-Authenticate": "Bearer"})
         try:
-            return security_service.decode(authorization[7:])
+            return security_service.decode(credentials.credentials)
         except (jwt.PyJWTError, ValueError):
             raise HTTPException(401, detail="Autenticacion requerida o token invalido.",
                                 headers={"WWW-Authenticate": "Bearer"}) from None
