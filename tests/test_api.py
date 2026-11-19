@@ -55,6 +55,7 @@ def test_protected_routes_require_bearer_and_hide_password():
     response = http.get("/api/users")
     assert response.status_code == 401
     assert response.json() == {"status": 401, "message": "Autenticacion requerida o token invalido."}
+    assert http.get("/").status_code == 401
     response = http.get("/api/users", headers={"Authorization": "Bearer valid"})
     assert response.status_code == 200
     assert "password" not in response.json()[0]

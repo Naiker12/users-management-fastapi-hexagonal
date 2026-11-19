@@ -76,3 +76,15 @@ La suite exige una cobertura mínima del 90 %.
 ## Postman
 
 Importa `postman/users-management.postman_collection.json` y los entornos `Local.postman_environment.json` y `Remoto.postman_environment.json`. En el entorno Local completa `adminEmail` y `adminPassword`; la colección guarda el token después del login y `userId` después de crear el usuario. Completa `baseUrl` del entorno Remoto cuando la API se despliegue.
+
+## Docker Compose local
+
+`compose.yaml` levanta PostgreSQL y la API en contenedores. Define `LOCAL_DB_PASSWORD` en `.env` (puede ser distinta de la contraseña de Supabase) y ejecuta:
+
+```powershell
+docker compose up --build
+```
+
+## Despliegue en Render
+
+Conecta el repositorio de GitHub en Render o crea un Blueprint usando `render.yaml`. Completa los valores `sync: false` del servicio con las variables de conexión de Supabase y secretos nuevos; no copies el `.env` local al panel. El despliegue automático sigue los cambios en `main`. Swagger permanece público y `GET /` requiere Bearer JWT, como en el contrato del taller.
